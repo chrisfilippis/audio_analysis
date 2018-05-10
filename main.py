@@ -38,8 +38,8 @@ def load_all_files(filepath, parts=10):
 def clustering(parts):
     ok = 1
 
-audio_part_file = load_all_files('C:\ProgramData\Anaconda2\Lib\site-packages\pyAudioAnalysis\data\\', 10)
-clustering(parts)
+audio_part_files = load_all_files('C:\ProgramData\Anaconda2\Lib\site-packages\pyAudioAnalysis\data\\', 10)
+clustering(audio_part_files)
 
 Fs, x = audioBasicIO.readAudioFile("C:\ProgramData\Anaconda2\Lib\site-packages\pyAudioAnalysis\data\diarizationExample.wav")
 F = audioFeatureExtraction.stFeatureExtraction(x, Fs, 0.050*Fs, 0.025*Fs)
