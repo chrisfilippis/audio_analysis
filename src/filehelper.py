@@ -60,7 +60,7 @@ def convert_files_to_wav(filepath):
         command = "ffmpeg -i " + ff + " -ab 160k -ac 1 -ar 16000 -vn " + ff.replace('mp4','wav')
         subprocess.call(command, shell=True)
 
-def load_file_data(input_mp4_directory, parts):
+def load_and_organize_files(input_mp4_directory, parts):
     parent_directory = abspath(join(input_mp4_directory, pardir))
     
     input_directory = parent_directory + '\\wav\\'
@@ -72,5 +72,4 @@ def load_file_data(input_mp4_directory, parts):
         delete_and_create_directory(input_directory)
         convert_files_to_wav(input_mp4_directory)
     
-    response = load_all_files(input_directory, temp_directory, parts)
-    return response, [abspath(join(temp_directory, name)) for name in listdir(temp_directory)]
+    return load_all_files(input_directory, temp_directory, parts), [abspath(join(temp_directory, name)) for name in listdir(temp_directory)]
