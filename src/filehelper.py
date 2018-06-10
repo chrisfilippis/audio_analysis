@@ -25,9 +25,15 @@ def split_file_to_parts(filepath, parts, output_folder):
             to_index = (len(sound) - 1)
 
         file_part = sound[from_index:to_index]
-        file_part.export(output_folder + file_name + "_" + str(part_index + 1) + "." + format_type, format=format_type)
+
+        part_directory = output_folder + file_name + '\\'
+
+        if not exists(part_directory):
+            makedirs(part_directory)
+
+        file_part.export(part_directory + file_name + "_" + str(part_index + 1) + "." + format_type, format=format_type)
         file_parts.append(file_part)
-    
+
     return [join(output_folder, f) for f in listdir(output_folder) if isfile(join(output_folder, f))]
 
 def load_all_files(filepath, output_folder, parts=10):
@@ -36,6 +42,7 @@ def load_all_files(filepath, output_folder, parts=10):
     for audio_file in audio_files:
         for audio_file_part in split_file_to_parts(audio_file, parts, output_folder):
             audio_parts.append((audio_file_part))
+
     return audio_parts
 
 def delete_and_create_directory(directory):
@@ -46,6 +53,12 @@ def delete_and_create_directory(directory):
 def delete_directory(directory):
     if(isdir(directory)):
         shutil.rmtree(directory)
+
+def convert_files_to_wav(filepath):
+    audio_files = [join(filepath, f) for f in listdir(filepath) if isfile(join(filepath, f))]
+    for ff in audio_files:
+        command = "ffmpeg -i " + ff + " -ab 160k -ac 1 -ar 16000 -vn " + ff.replace('mp4','wav')
+        subprocess.call(command, shell=True)
 
 def load_file_data(input_mp4_directory, parts):
     parent_directory = abspath(join(input_mp4_directory, pardir))
@@ -60,11 +73,4 @@ def load_file_data(input_mp4_directory, parts):
         convert_files_to_wav(input_mp4_directory)
     
     response = load_all_files(input_directory, temp_directory, parts)
-
-    return response
-
-def convert_files_to_wav(filepath):
-    audio_files = [join(filepath, f) for f in listdir(filepath) if isfile(join(filepath, f))]
-    for ff in audio_files:
-        command = "ffmpeg -i " + ff + " -ab 160k -ac 1 -ar 16000 -vn " + ff.replace('mp4','wav')
-        subprocess.call(command, shell=True)
+    return response, [abspath(join(temp_directory, name)) for name in listdir(temp_directory)]
