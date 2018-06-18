@@ -1,5 +1,5 @@
 from pydub import AudioSegment
-from os.path import isfile, join, basename, isdir, exists, abspath
+from os.path import isfile, join, basename, isdir, exists, abspath, dirname
 import matplotlib.pyplot as plt
 from os import listdir, makedirs, pardir
 from pyAudioAnalysis import audioBasicIO
@@ -10,6 +10,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 import filehelper
 import numpy as np
 import ntpath
+import itertools
 
 def filter_directories(directories, pattern):
     result = []
@@ -33,6 +34,40 @@ def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
 def evaluate(testingfiles):
     actual_y = []
     predict_y = []
@@ -43,14 +78,31 @@ def evaluate(testingfiles):
         actual_y.append(path_leaf(testing_file).split('_')[1])
         predict_y.append(prediction.split('_')[1])
     
-    return actual_y, predict_y
+    print accuracy_score(actual_y, predict_y)
+    conf_matrix = confusion_matrix(actual_y, predict_y)
+    np.set_printoptions(precision=2)
 
-a_f, directories = filehelper.load_and_organize_files('C:\Users\\filippisc\Projects\Master\\audio_analysis\data\mp4\\', 10)
-testing_files = get_test_files(directories, '_1')
+    # Plot non-normalized confusion matrix
+    plt.figure()
+    plot_confusion_matrix(conf_matrix, classes=set(actual_y), normalize=False, title='Confusion matrix, without normalization')
 
-aT.featureAndTrain(filter_directories(directories, '_0'), 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "knnMusicGenre3", False)
+    # Plot normalized confusion matrix
+    plt.figure()
+    plot_confusion_matrix(conf_matrix, classes=set(actual_y), normalize=True, title='Normalized confusion matrix')
+    plt.show()
 
-y_true, y_pred = evaluate(testing_files[0:130])
+def train_and_evaluate(train_index, test_index, init_path, parts):
+    relative_path = abspath(dirname(__file__))
+    directory_path = join(relative_path, init_path)
+    a_f, directories = filehelper.load_and_organize_files(directory_path, parts)
+    testing_files = get_test_files(directories, '_' + str(train_index))
 
-print accuracy_score(y_true, y_pred)
-print confusion_matrix(y_true, y_pred)
+    aT.featureAndTrain(filter_directories(directories, '_' + str(test_index)), 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "knnMusicGenre3", False)
+
+    evaluate(testing_files)
+
+train_audio_index = '1'
+test_audio_index = '0'
+audiofiles_directory = '..\data\mp4\\'
+audio_parts = 10
+train_and_evaluate(train_audio_index, test_audio_index, audiofiles_directory, audio_parts)
