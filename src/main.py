@@ -73,7 +73,7 @@ def evaluate(testingfiles):
     predict_y = []
 
     for testing_file in testingfiles:
-        prediction_result = aT.fileClassification(testing_file, "knnMusicGenre3", "knn")
+        prediction_result = aT.fileClassification(testing_file, "model", "knn")
         prediction = prediction_result[2][prediction_result[0]]
         actual_y.append(path_leaf(testing_file).split('_')[1])
         predict_y.append(prediction.split('_')[1])
@@ -97,7 +97,7 @@ def train_and_evaluate(train_index, test_index, init_path, parts):
     a_f, directories = filehelper.load_and_organize_files(directory_path, parts)
     testing_files = get_test_files(directories, '_' + str(train_index))
 
-    aT.featureAndTrain(filter_directories(directories, '_' + str(test_index)), 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "knnMusicGenre3", False)
+    aT.featureAndTrain(filter_directories(directories, '_' + str(test_index)), 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "model", False)
 
     evaluate(testing_files)
 
