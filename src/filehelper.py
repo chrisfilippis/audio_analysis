@@ -57,7 +57,7 @@ def delete_directory(directory):
 def convert_files_to_wav(filepath):
     audio_files = [join(filepath, f) for f in listdir(filepath) if isfile(join(filepath, f))]
     for ff in audio_files:
-        command = "ffmpeg -i " + ff + " -ab 160k -ac 1 -ar 16000 -vn " + ff.replace('mp4','wav')
+        command = "ffmpeg -i " + ff + " -ab 160k -ac 1 -ar 16000 -vn " + ff.replace('mp4','wav').replace('mp3','wav')
         subprocess.call(command, shell=True)
 
 def load_and_organize_files(input_mp4_directory, parts):

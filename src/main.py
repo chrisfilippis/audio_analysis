@@ -101,8 +101,8 @@ def train_and_evaluate(train_index, test_index, init_path, parts):
 
     evaluate(testing_files)
 
-train_audio_index = '1'
-test_audio_index = '0'
+train_audio_index = '0'
+test_audio_index = '1'
 audiofiles_directory = '..\data\mp4\\'
 audio_parts = 10
 train_and_evaluate(train_audio_index, test_audio_index, audiofiles_directory, audio_parts)
