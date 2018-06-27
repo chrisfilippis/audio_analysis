@@ -68,13 +68,13 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-def evaluate(testingfiles):
+def evaluate(testingfiles, alg, model_name):
     actual_y = []
     predict_y = []
 
     for testing_file in testingfiles:
-        prediction_result = aT.fileClassification(testing_file, "model", "knn")
-        prediction = prediction_result[2][prediction_result[0]]
+        prediction_result = aT.fileClassification(testing_file, model_name, alg)
+        prediction = prediction_result[2][int(prediction_result[0])]
         actual_y.append(path_leaf(testing_file).split('_')[1])
         predict_y.append(prediction.split('_')[1])
     
@@ -91,18 +91,18 @@ def evaluate(testingfiles):
     plot_confusion_matrix(conf_matrix, classes=set(actual_y), normalize=True, title='Normalized confusion matrix')
     plt.show()
 
-def train_and_evaluate(train_index, test_index, init_path, parts):
+def train_and_evaluate(train_index, test_index, init_path, parts, alg="knn", model_name="model"):
     relative_path = abspath(dirname(__file__))
     directory_path = join(relative_path, init_path)
     a_f, directories = filehelper.load_and_organize_files(directory_path, parts)
     testing_files = get_test_files(directories, '_' + str(train_index))
 
-    aT.featureAndTrain(filter_directories(directories, '_' + str(test_index)), 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, "knn", "model", False)
+    aT.featureAndTrain(filter_directories(directories, '_' + str(test_index)), 1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, alg, model_name, False)
 
-    evaluate(testing_files)
+    evaluate(testing_files, alg, model_name)
 
-train_audio_index = '0'
-test_audio_index = '1'
+train_audio_index = '1'
+test_audio_index = '0'
 audiofiles_directory = '..\data\mp4\\'
 audio_parts = 10
-train_and_evaluate(train_audio_index, test_audio_index, audiofiles_directory, audio_parts)
+train_and_evaluate(train_audio_index, test_audio_index, audiofiles_directory, audio_parts, alg="svm")
